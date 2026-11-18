@@ -265,6 +265,10 @@ export class TakeSurveyComponent implements OnInit {
    */
   private progressPing ( event: 'start' | 'answered' | 'identity' | 'submitted', questionId?: string, step?: number ): void {
     if ( this.preview() || typeof fetch === 'undefined' ) return;
+    // The same step on the visitor's journey (public/journey.js; health page -> Journeys).
+    const total = this.questions().length;
+    const words = event === 'start' ? 'Started the pulse' : event === 'answered' ? `Answered question ${ step }${ total ? ` of ${ total }` : '' }` : event === 'identity' ? 'Reached the contact details' : 'Sent the pulse';
+    try { ( window as unknown as { journey?: ( k: string, l: string ) => void } ).journey?.( event === 'submitted' ? 'form_sent' : 'step', words ); } catch { /* never block answering */ }
     try {
       void fetch( `${ environment.backendURL }/public/surveys/${ encodeURIComponent( this.surveyId ) }/progress`, {
         method: 'POST',
