@@ -12,6 +12,7 @@ import { PulseBarComponent } from '../shell/pulse-bar.component';
 import { PulseStore } from '../pulse.store';
 import { plural, pulseLink, pulseStatus, shortDate, timeAgo } from '../pulse-state';
 import { buildCsv } from './results-csv';
+import { respondentLabels } from './results-who';
 
 const THEME_TINTS = ['pink', 'yellow', 'green', 'cyan', 'violet'];
 
@@ -49,6 +50,8 @@ export class ResultsStepComponent implements OnInit {
   readonly expanded = signal<Record<string, boolean>>( {} );
 
   private responses: SurveyResponseRecord[] | null = null;
+  /** responseId → "Thomas Fekry" (or email / "Respondent 3"); empty until responses load. */
+  readonly who = signal<Map<string, string>>( new Map() );
 
   readonly subtitle = computed( () => {
     const count = Math.max( this.survey().responseCount || 0, this.results()?.totalResponses || 0 );
@@ -92,6 +95,7 @@ export class ResultsStepComponent implements OnInit {
   private async loadAll (): Promise<void> {
     const id = this.survey().id!;
     this.responses = null;
+    void this.loadWho( id );
     try {
       const [results, insights] = await Promise.all( [
         firstValueFrom( this.api.getResults( id ) ),
@@ -112,6 +116,24 @@ export class ResultsStepComponent implements OnInit {
     } catch {
       this.loadFailed.set( true );
     }
+  }
+
+  /** Names under each answer. Best-effort: if this fails the cards still show dates. */
+  private async loadWho ( id: string ): Promise<void> {
+    try {
+      const responses = await firstValueFrom( this.api.getSurveyResponses( id ) );
+      this.responses = responses;
+      this.who.set( respondentLabels( this.survey(), responses ) );
+    } catch {
+      /* keep whatever names we already had */
+    }
+  }
+
+  /** "Thomas Fekry · Nov 17", or just the date when we don't know who (or the answer is the name itself). */
+  quoteMeta ( quote: { responseId: string; text: string; submittedAt: string; } ): string {
+    const name = this.who().get( quote.responseId );
+    const date = shortDate( quote.submittedAt );
+    return name && name !== quote.text.trim() ? `${name} · ${date}` : date;
   }
 
   retry (): void {
