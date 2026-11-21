@@ -26,7 +26,7 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "../../taliferro-ui/brand/products",
+                "input": "node_modules/@taliferro/ui/brand/products",
                 "output": "assets/brand/products"
               },
               {
@@ -94,14 +94,7 @@
               "buildTarget": "pulse:build:development"
             }
           },
-          "defaultConfiguration": "development",
-          "options": {
-            "prebundle": {
-              "exclude": [
-                "@taliferro/ui"
-              ]
-            }
-          }
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n"
