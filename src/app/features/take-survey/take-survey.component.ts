@@ -11,7 +11,23 @@ import { startMetaPixel, trackMetaPixel, trackMetaPixelCustom } from '../../shar
 import { typeMeta } from '../pulse/pulse-state';
 import { environment } from '../../../environments/environment';
 
-type Phase = 'loading' | 'unavailable' | 'closed' | 'answer' | 'identity' | 'sending' | 'done' | 'already';
+type Phase = 'loading' | 'unavailable' | 'closed' | 'intro' | 'answer' | 'identity' | 'sending' | 'done' | 'already';
+
+/** One line of a pulse's intro: "Price: The preview is free." -> a label and its text. */
+export interface IntroLine { label: string; text: string; }
+
+/**
+ * A paid-report pulse opens on its offer (anatomy of an offer, 2026-11-22):
+ * the owner writes the description as "Label: text" lines (What it is, What
+ * you get, Why it matters, Price, Next step). Lines without a label keep an
+ * empty one and show as plain text. Exported for the spec.
+ */
+export function introLines ( description: string | null | undefined ): IntroLine[] {
+  return String( description || '' ).split( /\n+/ ).map( ( line ) => line.trim() ).filter( Boolean ).map( ( line ) => {
+    const match = /^([^:]{2,24}):\s+(.+)$/.exec( line );
+    return match ? { label: match[1].trim(), text: match[2].trim() } : { label: '', text: line };
+  } );
+}
 type Answer = string | number | string[];
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -47,6 +63,8 @@ export class TakeSurveyComponent implements OnInit {
   readonly email = signal( '' );
   readonly error = signal( '' );
   readonly preview = signal( false );
+  /** The offer a paid-report pulse opens on, worked out once at load. */
+  readonly intro = signal<IntroLine[]>( [] );
 
   private surveyId = '';
   private postId = '';
@@ -144,8 +162,14 @@ export class TakeSurveyComponent implements OnInit {
       } else if ( !survey.questions?.length ) {
         this.phase.set( 'unavailable' );
       } else {
-        this.phase.set( 'answer' );
-        this.progressPing( 'start' );
+        const intro = survey.paidReport ? introLines( survey.description ) : [];
+        this.intro.set( intro );
+        if ( intro.length ) {
+          this.phase.set( 'intro' );
+        } else {
+          this.phase.set( 'answer' );
+          this.progressPing( 'start' );
+        }
       }
     } catch {
       this.phase.set( 'unavailable' );
@@ -344,10 +368,21 @@ export class TakeSurveyComponent implements OnInit {
     } catch { }
   }
 
+  /** From the offer card to the first question. */
+  begin (): void {
+    this.phase.set( 'answer' );
+    this.progressPing( 'start' );
+  }
+
   // ── Keyboard (2d) ────────────────────────────────────────────────────────
 
   @HostListener( 'document:keydown', ['$event'] )
   onKey ( event: KeyboardEvent ): void {
+    if ( this.phase() === 'intro' && event.key === 'Enter' && !( event.target as HTMLElement | null )?.closest?.( 'a, button' ) ) {
+      event.preventDefault();
+      this.begin();
+      return;
+    }
     if ( !['answer', 'identity'].includes( this.phase() ) || event.metaKey && event.key !== 'Enter' || event.ctrlKey && event.key !== 'Enter' || event.altKey ) return;
     const target = event.target as HTMLElement | null;
     const typing = !!target && ( target.tagName === 'TEXTAREA' || ( target.tagName === 'INPUT' && ( target as HTMLInputElement ).type !== 'radio' && ( target as HTMLInputElement ).type !== 'checkbox' ) );

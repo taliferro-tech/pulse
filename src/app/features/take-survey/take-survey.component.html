@@ -3,7 +3,7 @@
     <span class="ts-avatar" aria-hidden="true">{{ initials() }}</span>
     <span class="ts-sender">
       <span class="ts-sender__name">{{ sender() }}</span>
-      <span class="ts-sender__title">{{ survey()?.title }}@if (phase() === 'answer' && survey()) {<span class="ts-wide"> · {{ duration() }}</span>}</span>
+      <span class="ts-sender__title">{{ survey()?.title }}@if ((phase() === 'answer' || phase() === 'intro') && survey()) {<span class="ts-wide"> · {{ duration() }}</span>}</span>
     </span> @if (preview()) { <span class="ts-preview">Preview · answers aren't saved</span> } @if (phase() === 'answer' || phase() === 'identity' || phase() === 'sending') { <span class="ts-progress ts-progress--top ts-wide">
       <span class="ts-progress__label">{{ step() }} of {{ total() }}</span>
       <span class="ts-progress__track"><span [style.width.%]="progress()"></span></span>
@@ -12,6 +12,12 @@
   <main class="ts-stage"> @switch (phase()) { @case ('loading') { <span class="ts-spinner" aria-label="Loading"></span> } @case ('unavailable') { <div class="ts-card ts-card--message">
       <h1 class="ts-q">This link isn't working</h1>
       <p class="ts-lede">Ask the person who sent it for a fresh link.</p>
+    </div> } @case ('intro') { <div class="ts-card ts-card--intro">
+      <h1 class="ts-q">{{ survey()?.title }}</h1>
+      <dl class="ts-offer"> @for (line of intro(); track $index) { <div class="ts-offer__row"> @if (line.label) { <dt>{{ line.label }}</dt> } <dd>{{ line.text }}</dd></div> } </dl>
+      <div class="ts-nav">
+        <button type="button" class="p-btn p-btn--primary ts-next" (click)="begin()">Start · {{ duration() }}<app-icon name="right" [size]="18" /></button>
+      </div>
     </div> } @case ('closed') { <div class="ts-card ts-card--message">
       <h1 class="ts-q">This pulse has closed</h1>
       <p class="ts-lede">{{ sender() }} isn't taking answers anymore. Thanks for stopping by.</p>
