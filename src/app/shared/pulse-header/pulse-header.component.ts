@@ -38,6 +38,7 @@ export class PulseHeaderComponent {
   @Input() isAdmin = false;
   @Input() userName = '';
   @Input() userEmail = '';
+  @Input() userId = '';
   @Output() readonly signOut = new EventEmitter<void>();
 
   private readonly router = inject( Router );

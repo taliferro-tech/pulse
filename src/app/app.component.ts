@@ -35,6 +35,7 @@ export class AppComponent implements OnInit {
   readonly isLoggedIn$ = this.authService.isLoggedIn();
   readonly userName$ = this.authService.getUser().pipe( map( user => user?.displayName || '' ) );
   readonly userEmail$ = this.authService.getUser().pipe( map( user => user?.email || '' ) );
+  readonly userId$ = this.authService.getUser().pipe( map( user => user?.uid || '' ) );
   readonly isEmbedded = typeof window !== 'undefined'
     && new URLSearchParams( window.location.search ).get( 'embedded' ) === 'true';
 
