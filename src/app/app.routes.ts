@@ -30,9 +30,9 @@ export const routes: Routes = [
       import( './features/help/help.component' ).then( ( m ) => m.HelpComponent ),
   },
   {
-    // Dedicated product showcase for the Pulsur iOS app.
+    // Product page for the iPhone app (16Ahead Pulse), with the TestFlight beta link.
     path: 'ios',
-    data: { meta: { title: 'Pulsur — Pulse in your pocket for iPhone | 16Ahead', description: 'Pulsur brings Pulse to iPhone: the question, the responses, and the read on the room, wherever the moment happens. Coming soon to the App Store.' } satisfies PageMeta },
+    data: { meta: { title: '16Ahead Pulse for iPhone — join the beta | 16Ahead', description: '16Ahead Pulse brings Pulse to iPhone: the question, the responses, and the read on the room, wherever the moment happens. Join the beta on TestFlight.' } satisfies PageMeta },
     loadComponent: () =>
       import( './features/app-showcase/app-showcase.component' ).then( ( m ) => m.AppShowcaseComponent ),
   },

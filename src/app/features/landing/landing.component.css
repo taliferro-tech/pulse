@@ -12,7 +12,8 @@
 .lp-lead { margin: 0; font-size: 18px; line-height: 1.6; max-width: 540px; }
 .lp-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .lp-btn { height: 54px; padding: 0 28px; font-size: 16px; }
-.lp-soon { height: 54px; padding: 0 22px; border-radius: 999px; background: var(--surface); color: var(--muted); display: inline-flex; align-items: center; font-weight: 700; font-size: 15px; }
+.lp-beta { height: 54px; padding: 0 22px; border-radius: 999px; background: var(--surface); color: inherit; display: inline-flex; align-items: center; font-weight: 700; font-size: 15px; text-decoration: none; transition: filter .15s; }
+.lp-beta:hover { filter: brightness(.95); }
 .lp-note { font-size: 14px; color: var(--muted); }
 
 

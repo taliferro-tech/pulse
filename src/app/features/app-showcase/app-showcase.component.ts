@@ -10,6 +10,9 @@ import { RouterModule } from '@angular/router';
   styleUrl: './app-showcase.component.css'
 } )
 export class AppShowcaseComponent {
+  /** TestFlight public link for the Early Adopters group. */
+  readonly betaUrl = 'https://testflight.apple.com/join/EG18edbX';
+
   readonly highlights = [
     { heading: 'Build the question wherever the idea starts', copy: 'Create a pulse from your phone while the conversation is still fresh, then publish it when the question is ready.' },
     { heading: 'Collect responses without carrying a laptop', copy: 'Share one link and let people respond from any device. Every answer lands in the same Pulse workspace.' },
